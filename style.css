@@ -1,0 +1,146 @@
+/* ===== Base page ===== */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+:root {
+  --bg: #f4f1ea;
+  --ink: #1d2433;
+  --muted: #5b6375;
+  --accent: #d9622b;
+  --radius: 14px;
+  --slide-duration: 600ms;              /* overwritten from JS options */
+  --slide-easing: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.page {
+  width: min(1100px, 100% - 2rem);      /* fluid width with a 1rem gutter */
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) 0;
+}
+
+.page-header h1 { margin: 0 0 0.25rem; font-size: clamp(1.6rem, 4vw, 2.4rem); }
+.page-header p  { margin: 0 0 1.5rem; color: var(--muted); }
+
+/* ===== Slider component ===== */
+.slider {
+  position: relative;
+  width: 100%;                           /* adapts to any parent container */
+}
+
+/* Viewport = the visible window; everything outside it is masked */
+.slider__viewport {
+  overflow: hidden;
+  border-radius: var(--radius);
+  aspect-ratio: 16 / 9;
+  background: #000;
+  box-shadow: 0 18px 40px rgba(29, 36, 51, 0.25);
+}
+
+/* Track = one long horizontal row of slides */
+.slider__track {
+  display: flex;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  will-change: transform;                /* promote to its own GPU layer */
+  transform: translate3d(0, 0, 0);
+}
+
+.slider__track.is-animating {
+  transition: transform var(--slide-duration) var(--slide-easing);
+}
+
+.slider__slide {
+  flex: 0 0 100%;                        /* every slide = one viewport width */
+  height: 100%;
+}
+
+.slider__slide img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: cover;                     /* fill without distortion */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ===== Arrows on the left and right edges ===== */
+.slider__arrow {
+  position: absolute;
+  top: calc((100% - 3.5rem) / 2);        /* centre of the viewport, above the dots */
+  transform: translateY(-50%);
+  width: clamp(36px, 6vw, 52px);
+  height: clamp(36px, 6vw, 52px);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ink);
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 2;
+}
+.slider__arrow--prev { left: 12px; }
+.slider__arrow--next { right: 12px; }
+.slider__arrow:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
+
+/* ===== Indicator dots ===== */
+.slider__dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 1rem;
+  height: 3.5rem;
+}
+
+.slider__dot {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.slider__dot.is-active {
+  width: 32px;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.slider__arrow:focus-visible,
+.slider__dot:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Screen-reader-only status text */
+.slider__status {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ===== Breakpoints ===== */
+@media (max-width: 600px) {
+  .slider__viewport { aspect-ratio: 4 / 3; border-radius: 10px; }
+  .slider__arrow--prev { left: 6px; }
+  .slider__arrow--next { right: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slider { --slide-duration: 1ms !important; }
+}
